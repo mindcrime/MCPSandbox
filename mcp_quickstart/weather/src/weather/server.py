@@ -5,6 +5,9 @@ from mcp.server.models import InitializationOptions
 import mcp.types as types
 from mcp.server import NotificationOptions, Server
 import mcp.server.stdio
+import sys
+
+
 
 NWS_API_BASE = "https://api.weather.gov"
 USER_AGENT = "weather-app/1.0"
@@ -64,6 +67,9 @@ async def make_nws_request( client: httpx.AsyncClient, url: str ) -> dict[str, A
 
     try:
         response = await client.get(url, headers=headers, timeout=30.0)
+        
+        # print( f"NWS response: {response}", file=sys.stderr)
+        
         response.raise_for_status()
         return response.json()
     except Exception:
@@ -98,6 +104,9 @@ async def handle_call_tool(name: str, arguments: dict | None
     if name == "get-alerts":
 
         state = arguments.get("state")
+        
+        # print( f"get-alerts called with state: {state}", file=sys.stderr)
+        
         if not state:
             raise ValueError( "Missing state parameter" )
 
@@ -106,33 +115,42 @@ async def handle_call_tool(name: str, arguments: dict | None
         if len(state) != 2:
             raise ValueError( "State must be a two-letter code (e.g. CA, NC, NY)" )
         
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
             alerts_url = f"{NWS_API_BASE}/alerts?area={state}"
+            
+            # print( "alerts_url:", alerts_url)
+            
             alerts_data = await make_nws_request(client, alerts_url )
 
             if not alerts_data:
+                # print( "No alerts data" )
                 return [types.TextContent(type="text", text="Failed to retrieve alerts data")]
 
             features = alerts_data.get("features", [] )
             if not features:
+                # print( "No features" )
                 return [types.TextContent(type="text", text=f"No active alerts for {state}")]
         
             # Format each alert into a concise string
             formatted_alerts = [format_alert(feature) for feature in features[:20]] # only take the first 20 alerts
             alerts_text = f"Active alerts for {state}:\n\n" + "\n".join(formatted_alerts)
 
+            # print( "alerts_text: ", alerts_text)
+            
             return [
                 types.TextContent(
                     type="text",
                     text=alerts_text
                 )
             ]
+            
     elif name == "get-forecast":
 
         try:
             latitude = float( arguments.get("latitude"))
             longitude = float( arguments.get("longitude"))
         except( TypeError, ValueError):
+            print( f"Error with coordinates: {latitude},{longitude}", file=sys.stderr)
             return [
                 types.TextContent(
                     type="text",
@@ -143,6 +161,7 @@ async def handle_call_tool(name: str, arguments: dict | None
         
         # Basic coordinate validation
         if not ( -90 <= latitude <= 90 ) or not (-180 <= longitude <= 180 ):
+            print( "Invalid coordinates. Latitude must be between -90 and 90, longitude between -180 and 180", file=sys.stderr)
             return [
                 types.TextContent(
                     type="text",
@@ -151,21 +170,29 @@ async def handle_call_tool(name: str, arguments: dict | None
             ]
 
         
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
             # first get the grid point
-            last_str = f"{latitude}"
+            lat_str = f"{latitude}"
             lon_str = f"{longitude}"
             points_url = f"{NWS_API_BASE}/points/{lat_str},{lon_str}"
+            
+            # print( f"points_url: {points_url}", file=sys.stderr)
+            
             points_data = await make_nws_request(client, points_url)
 
             if not points_data:
+                print( f"Failed to retrieve grid point data for coordinates: {latitude},{longitude}. This location may not be supported by the NWS API (only US locations are supported).", file=sys.stderr)
                 return [types.TextContent(
                     type="text",
                     text=f"Failed to retrieve grid point data for coordinates: {latitude},{longitude}. This location may not be supported by the NWS API (only US locations are supported).")]
 
             # extract forecast URL from the response
             properties = points_data.get( "properties", {} )
+            # print( f"properties: {properties}", file=sys.stderr)
+            
+            
             forecast_url = properties.get( "forecast" )
+            print( f"forecast_url: {forecast_url}", file=sys.stderr)
 
             if not forecast_url:
                 return [types.TextContent(type="text", text="Failed to get forecast URL from grid point data.")]

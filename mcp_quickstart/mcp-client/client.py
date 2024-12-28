@@ -17,7 +17,6 @@ class MCPClient:
         self.exit_stack = AsyncExitStack()
         self.anthropic = Anthropic()
 
-    # methods will go here
     async def connect_to_server(self, server_script_path: str):
         """
         Connect to an MCP server
@@ -71,6 +70,7 @@ class MCPClient:
                 model = "claude-3-5-sonnet-20241022",
                 max_tokens = 1000,
                 messages = messages,
+                system = "You are a helpful assistant. Use the provided tools to assist, but if no tool is appropriate, just provide your best response",
                 tools = available_tools
             )
 
@@ -86,19 +86,23 @@ class MCPClient:
                 tool_args = content.input
 
                 # Execute tool call
+                print( f"Calling tool {tool_name} with args {tool_args}")
                 result = await self.session.call_tool(tool_name, tool_args )
+                # print( f"result: {result}")
+                
                 tool_results.append( { "call":tool_name, "result":result  } )
                 final_text.append( f"[Calling tool {tool_name} with args {tool_args}]"   )
 
                 # Continue conversation with tool results
                 if hasattr( content, 'text' ) and content.text:
+                    print( f"appending text: {content.text} to messages")
                     messages.append(
                             {
                                 "role":"assistant",
                                 "content":content.text
                             }
                         )
-                    messages.append({
+                messages.append({
                         "role":"user",
                         "content":result.content
                     })
