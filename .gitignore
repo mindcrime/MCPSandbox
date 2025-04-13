@@ -4,3 +4,8 @@
 /.metadata/
 site-packages/
 python3.11/
+fastmcp1-env/
+.project
+.settings/
+.classpath
+.pydevproject
