@@ -25,9 +25,13 @@ It's not required, but it makes life easier. To setup this project using uv just
 
 ```
 $> uv init --name mcpsandbox
+
 $> uv python install 3.12.7
+
 add your needed dependencies to the pyproject.toml file ("mcp" and "fastmcp" should be about it)
+
 $> uv venv --python 3.12.7
+
 $> uv sync
 ```
 
