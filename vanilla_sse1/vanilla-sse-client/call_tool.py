@@ -28,9 +28,19 @@ async def connect_to_sse_server(server_url: str):
         print("Listing tools...")
         response = await session.list_tools()
         tools = response.tools
-        print("\nConnected to server with tools:", [tool.name for tool in tools])
+        # print("\nConnected to server with tools:", [tool.name for tool in tools])
 
+        tool = tools[0]
+
+        print( tool )
+        
         #  print( dir( session ) )
+
+        # Call a tool
+        result = await session.call_tool("calculator", arguments={"a": "327", "b":"383"} )
+
+        print( "Result: ", result.content[0].text )
+
         
         if( session_context ):
                 await session_context.__aexit__(None, None, None)
@@ -41,7 +51,7 @@ async def main():
 
     print( "Hello, MCP Client!" )
     
-    await connect_to_sse_server( "http://localhost:8000/sse" )
+    await connect_to_sse_server( "http://localhost:8080/sse" )
 
     print( "Done" )
     

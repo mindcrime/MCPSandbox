@@ -10,4 +10,8 @@ vanilla-sse-env/
 .settings/
 .classpath
 .pydevproject
-
+.venv
+dependency-*.xml
+.python-version
+pyproject.toml
+uv.lock
