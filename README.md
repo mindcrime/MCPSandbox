@@ -20,3 +20,14 @@ Specifically, I used the following resources:
 For the Python examples, note that there are two tracks: one that uses the FastMCP library, and one that uses the "vanilla" Python SDK.
 FastMCP is probably recommended for actual usage, but again, this is all for learning purposes first and foremost.
 
+Additionally, I highly recommend using the 'uv' tool to setup your Python environment if you want to use any of this Python sample code.
+It's not required, but it makes life easier. To setup this project using uv just do the following:
+
+$> uv init --name mcpsandbox
+$> uv python install 3.12.7
+add your needed dependencies to the pyproject.toml file ("mcp" and "fastmcp" should be about it)
+$> uv venv --python 3.12.7
+$> uv sync
+
+then use "uv run" to run the .py files you want to run.
+

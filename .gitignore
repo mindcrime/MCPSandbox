@@ -15,3 +15,4 @@ dependency-*.xml
 .python-version
 pyproject.toml
 uv.lock
+.env
