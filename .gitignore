@@ -11,6 +11,9 @@ vanilla-sse-env/
 .classpath
 .pydevproject
 .venv
+target/
+*.jar
+*.class
 dependency-*.xml
 .python-version
 pyproject.toml
