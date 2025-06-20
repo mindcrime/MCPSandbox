@@ -41,8 +41,10 @@ async def main():
 
     print( "Hello, MCP Client!" )
     
-    await connect_to_sse_server( "http://localhost:8080/sse" )
-
+    # await connect_to_sse_server( "http://localhost:8000/sse" )
+    await connect_to_sse_server( "http://ece.example.metlife.com/sse" )
+    # await connect_to_sse_server( "https://apim-mcp-poc.azure-api.net/phil/testmcp/sse" )
+    
     print( "Done" )
     
 if __name__=="__main__":

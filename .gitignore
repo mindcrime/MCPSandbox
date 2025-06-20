@@ -6,6 +6,9 @@ site-packages/
 python3.11/
 fastmcp1-env/
 vanilla-sse-env/
+fastmcp-env/
+fastmcp2-env/
+mcp-venv/
 .project
 .settings/
 .classpath

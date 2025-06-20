@@ -7,6 +7,7 @@ async def main():
 
     print( "Hello, FastMCP Client!\n" )
     sse_url = "http://localhost:8000/sse"       # SSE server URL
+    # sse_url = "http://10.133.65.94:80/sse"
     client = Client(sse_url)
 
     print( client.transport )
